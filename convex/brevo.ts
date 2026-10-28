@@ -197,9 +197,9 @@ export function reminderHtml(r: Rsvp): string {
 }
 
 /**
- * The plain-text twin of the HTML we just built. Gmail scores an HTML-only
- * message arriving from a shared relay much harsher than a multipart one, and
- * our From is a gmail.com address Brevo cannot sign, so every point counts.
+ * The plain-text twin of the HTML we just built. Sending both makes the message
+ * multipart/alternative, which filters score more gently than an HTML-only body
+ * arriving from a shared relay.
  */
 export function plainText(html: string): string {
   const entities: Record<string, string> = {
@@ -219,12 +219,13 @@ export function plainText(html: string): string {
 }
 
 /**
- * Brevo cannot sign a gmail.com From, and here the sender address is also the
- * recipient, so Gmail reads each notification as him mailing himself from
- * outside Google and folds it into Spam. Nothing in the hosted pages changes
- * that: the mail leaves from Convex. The two ways out are a Gmail filter that
- * never spams these, or RSVP_NOTIFY_EMAILS pointing at a mailbox without the
- * problem (Outlook, iCloud, a phone email).
+ * Brevo rewrites our From to `december12wedding2026@…brevosend.com`, so the DKIM
+ * passes but the address still carries the couple's own mailbox name while the
+ * notification is addressed to that same mailbox. Gmail reads that as him mailing
+ * himself and folds it into Spam — the send is real, only the inbox is wrong, and
+ * no change to the hosted pages can affect it because the mail leaves from here.
+ * RSVP_NOTIFY_EMAILS copies each notification to a mailbox without that problem
+ * (Outlook, iCloud, a phone email).
  */
 export function notifyCopies(): string[] {
   const extra = (process.env.RSVP_NOTIFY_EMAILS ?? "")
