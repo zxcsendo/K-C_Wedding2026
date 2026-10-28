@@ -197,9 +197,34 @@ export function reminderHtml(r: Rsvp): string {
 }
 
 /**
- * Brevo rewrites our From to `december12wedding2026@…brevosend.com`, which mirrors the
- * couple's own address, so Gmail spam-folds it as self-impersonation. RSVP_NOTIFY_EMAILS
- * copies each notification to a mailbox without that problem (Outlook, iCloud, a phone email).
+ * The plain-text twin of the HTML we just built. Gmail scores an HTML-only
+ * message arriving from a shared relay much harsher than a multipart one, and
+ * our From is a gmail.com address Brevo cannot sign, so every point counts.
+ */
+export function plainText(html: string): string {
+  const entities: Record<string, string> = {
+    amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", nbsp: " ", middot: " · ",
+    mdash: " — ", ndash: " – ", hellip: "...",
+  };
+  const text = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h1|tr|li)>/gi, "\n")
+    .replace(/<\/td>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&(#?\w+);/g, (whole, code: string) => entities[code] ?? whole)
+    .replace(/[ \t]+/g, " ")
+    .replace(/ ?\n ?/g, "\n")
+    .replace(/\n{3,}/g, "\n\n");
+  return text.trim();
+}
+
+/**
+ * Brevo cannot sign a gmail.com From, and here the sender address is also the
+ * recipient, so Gmail reads each notification as him mailing himself from
+ * outside Google and folds it into Spam. Nothing in the hosted pages changes
+ * that: the mail leaves from Convex. The two ways out are a Gmail filter that
+ * never spams these, or RSVP_NOTIFY_EMAILS pointing at a mailbox without the
+ * problem (Outlook, iCloud, a phone email).
  */
 export function notifyCopies(): string[] {
   const extra = (process.env.RSVP_NOTIFY_EMAILS ?? "")
@@ -236,6 +261,7 @@ export async function sendViaBrevo(
         to: [{ email: s.to, name: s.toName }, ...(s.alsoTo ?? []).map((email) => ({ email, name: s.toName }))],
         subject: s.subject,
         htmlContent: s.html,
+        textContent: plainText(s.html),
         tags: [`rsvp-${s.tag}`],
         ...(s.replyTo ? { replyTo: s.replyTo } : {}),
       }),
