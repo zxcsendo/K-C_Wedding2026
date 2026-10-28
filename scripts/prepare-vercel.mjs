@@ -5,7 +5,7 @@
  * host must never publish the repository as-is. This copies an allow-list of
  * files instead; anything not named here does not ship.
  */
-import { cpSync, readdirSync, readFileSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, readdirSync, readFileSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOT = join(new URL(".", import.meta.url).pathname.replace(/^\/(\w:)/, "$1"), "..");
@@ -26,7 +26,14 @@ const SCRIPTS = ["kc-admin-chip.js", "kc-patch.js"];
 const ASSET_DIRS = ["images", "fonts", "audio"];
 const FORBIDDEN = [".env", ".env.local", "convex", "node_modules", "package.json", "rsvp-backup-2026-10-23.json"];
 
-rmSync(OUT, { recursive: true, force: true });
+// Keep .vercel/ (the project link) so a rebuild stays deployable with one
+// command; everything else in dist/ is regenerated.
+if (existsSync(OUT)) {
+  for (const entry of readdirSync(OUT)) {
+    if (entry === ".vercel") continue;
+    rmSync(join(OUT, entry), { recursive: true, force: true });
+  }
+}
 mkdirSync(OUT, { recursive: true });
 
 for (const file of [...PAGES, ...SCRIPTS]) {
@@ -40,14 +47,19 @@ for (const dir of ASSET_DIRS) {
 // would make the host try to install and build this as a Node app.
 writeFileSync(join(OUT, "robots.txt"), "User-agent: *\nDisallow: /admin.html\n");
 
+// Dotfiles and dot-folders are tool state, and the host never serves them.
 const walk = (dir, base = "") =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
-    e.isDirectory() ? walk(join(dir, e.name), `${base}${e.name}/`) : [`${base}${e.name}`],
-  );
+  readdirSync(dir, { withFileTypes: true })
+    .filter((e) => !e.name.startsWith("."))
+    .flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name), `${base}${e.name}/`) : [`${base}${e.name}`]));
 
 const shipped = walk(OUT);
 for (const path of shipped) {
   if (FORBIDDEN.includes(path)) throw new Error(`refusing to ship ${path}`);
+}
+// walk() ignores dotfiles, so the credential files get their own check.
+for (const secret of [".env", ".env.local", ".env.production"]) {
+  if (existsSync(join(OUT, secret))) throw new Error(`refusing to ship ${secret}`);
 }
 
 const bytes = shipped.reduce((n, f) => n + readFileSync(join(OUT, f)).length, 0);
