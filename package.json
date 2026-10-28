@@ -1,0 +1,17 @@
+{
+  "name": "kenneth-catherine-wed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kenneth & Catherine wedding site — static pages with a Convex + Brevo RSVP backend",
+  "scripts": {
+    "serve": "python -m http.server 8000 --bind 127.0.0.1",
+    "build:site": "node scripts/prepare-vercel.mjs",
+    "deploy:vercel": "node scripts/prepare-vercel.mjs && vercel deploy --prod dist",
+    "dev": "convex dev",
+    "deploy": "convex deploy",
+    "dashboard": "convex dashboard"
+  },
+  "dependencies": {
+    "convex": "^1.48.0"
+  }
+}

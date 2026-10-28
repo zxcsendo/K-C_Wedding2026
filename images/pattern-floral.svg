@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140">
+  <!-- Seamless wallpaper tile for the countdown band. Every motif is fully inside the 140x140 box and
+       none touches an edge, so the repeat has no seam by construction. Quincunx layout: daisies on the
+       diagonals, florets on the anti-diagonals, a dot cluster dead centre. A tight beige ramp plus one muted-red dot cluster, every motif lighter than the text -->
+  <defs>
+    <g id="daisy">
+      <g fill="#e9d8c8">
+        <ellipse cx="0" cy="-22" rx="3.2" ry="9"/>
+        <ellipse cx="0" cy="22" rx="3.2" ry="9"/>
+        <ellipse cx="-22" cy="0" rx="9" ry="3.2"/>
+        <ellipse cx="22" cy="0" rx="9" ry="3.2"/>
+      </g>
+      <g fill="#efe3d7">
+        <ellipse rx="4.6" ry="15"/>
+        <ellipse rx="4.6" ry="15" transform="rotate(45)"/>
+        <ellipse rx="4.6" ry="15" transform="rotate(90)"/>
+        <ellipse rx="4.6" ry="15" transform="rotate(135)"/>
+      </g>
+      <circle r="3.4" fill="#dfc7b0"/>
+    </g>
+    <g id="floret" fill="#EDE0D4">
+      <circle cx="0" cy="-7" r="3.6"/>
+      <circle cx="6.7" cy="-2.2" r="3.6"/>
+      <circle cx="4.1" cy="5.7" r="3.6"/>
+      <circle cx="-4.1" cy="5.7" r="3.6"/>
+      <circle cx="-6.7" cy="-2.2" r="3.6"/>
+      <circle r="2.4" fill="#dfc7b0"/>
+    </g>
+    <g id="dots" fill="#DCAB9B">
+      <circle cx="0" cy="-6.5" r="2.6"/>
+      <circle cx="6.5" cy="0" r="2.6"/>
+      <circle cx="0" cy="6.5" r="2.6"/>
+      <circle cx="-6.5" cy="0" r="2.6"/>
+      <circle r="1.8"/>
+    </g>
+  </defs>
+  <use href="#daisy" x="35" y="35"/>
+  <use href="#daisy" x="105" y="105"/>
+  <use href="#floret" x="105" y="35"/>
+  <use href="#floret" x="35" y="105"/>
+  <use href="#dots" x="70" y="70"/>
+</svg>

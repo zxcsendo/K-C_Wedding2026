@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>K&amp;C Wedding 2026 — Admin</title>
+<style>
+  :root {
+    --ink:#2c2a28; --muted:#8b8378; --line:#e6ded3; --soft:#f2ece4;
+    --accent:#8a6f4e; --accent-dark:#6f583c; --paper:#faf8f5; --card:#ffffff;
+    --good:#3f6b4c; --bad:#9a3b3b; --maroon:maroon;
+    --shadow:0 1px 2px rgba(44,42,40,.05), 0 8px 24px rgba(44,42,40,.05);
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:Georgia,"Times New Roman",serif; -webkit-text-size-adjust:100%; }
+  .wrap { max-width:1200px; margin:0 auto; padding:26px 16px 80px; }
+  .kicker { margin:0 0 6px; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#a08a6d; }
+  h1 { margin:0; font-size:27px; font-weight:normal; letter-spacing:.01em; }
+  button { font:inherit; cursor:pointer; }
+  a { color:var(--accent); }
+  .hidden { display:none !important; }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:11px 18px;
+         font-size:14px; letter-spacing:.04em; color:#fff; background:var(--accent);
+         border:1px solid var(--accent); border-radius:999px; text-decoration:none; white-space:nowrap; }
+  .btn:hover { background:var(--accent-dark); border-color:var(--accent-dark); }
+  .btn[disabled] { opacity:.5; cursor:default; }
+  .btn.ghost { background:transparent; color:var(--accent); }
+  .btn.ghost:hover { background:#f5efe6; }
+  .btn.sm { padding:8px 15px; font-size:13px; }
+  .btn.plain { background:transparent; border-color:transparent; color:var(--muted); padding:8px 10px; }
+  .btn.plain:hover { color:var(--ink); background:#f5efe6; }
+
+  /* header + toolbar */
+  .top { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin:0 0 22px; }
+  .stats { display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:thin; }
+  .stat { flex:0 0 auto; background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:9px 16px; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-align:center; }
+  .stat b { display:block; font-size:21px; letter-spacing:0; color:var(--ink); font-weight:normal; }
+
+  .tools { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+           padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); margin:0 0 20px; }
+  .tools .group { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .search { position:relative; flex:1 1 220px; min-width:180px; }
+  .search svg { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+  input[type=text], input[type=password], textarea {
+    width:100%; padding:11px 13px; font:inherit; font-size:16px; color:var(--ink);
+    background:#fffdfb; border:1px solid var(--line); border-radius:10px;
+  }
+  .search input { padding-left:36px; }
+  textarea { resize:vertical; min-height:64px; line-height:1.6; }
+  input:focus, textarea:focus, button:focus-visible { outline:2px solid #c8b393; outline-offset:1px; }
+  .seg { display:inline-flex; padding:3px; background:var(--soft); border-radius:999px; }
+  .seg button { padding:7px 14px; font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+                color:var(--muted); background:transparent; border:0; border-radius:999px; display:inline-flex; align-items:center; gap:6px; }
+  .seg button.on { color:var(--ink); background:var(--card); box-shadow:0 1px 2px rgba(44,42,40,.10); }
+  .stamp { margin:0; font-size:12px; color:var(--muted); }
+
+  /* entries */
+  .list { display:grid; gap:16px; grid-template-columns:1fr; }
+  .list.grid { grid-template-columns:1fr; }
+  @media (min-width:700px) { .list.grid { grid-template-columns:1fr 1fr; } }
+  @media (min-width:1080px) { .list.grid { grid-template-columns:repeat(3, 1fr); } }
+  .list.rows { gap:10px; }
+  .reply { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; box-shadow:var(--shadow); }
+  .reply.is-seated { background:#fffdf9; }
+  .list.rows .reply { display:grid; grid-template-columns:1fr; gap:12px; align-items:start; padding:14px 16px; }
+  @media (min-width:900px) { .list.rows .reply { grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) auto; align-items:center; } }
+  .rmain { min-width:0; }
+  .rhead { display:flex; gap:10px; align-items:baseline; justify-content:space-between; flex-wrap:wrap; }
+  .rname { margin:0; font-size:19px; font-weight:normal; overflow-wrap:anywhere; }
+  .list.rows .rname { font-size:17px; }
+  .chip { flex:0 0 auto; display:inline-block; padding:4px 11px; border-radius:999px; font-size:10px;
+          letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; }
+  .chip.wait { background:#f3ede4; color:#8b7a5e; }
+  .chip.done { background:#e7efe8; color:var(--good); }
+  .chip.mail { background:#fbeced; color:var(--bad); }
+  .chip.old { background:#efe9e0; color:var(--muted); }
+  .reply.is-outdated { opacity:.66; }
+  .rmeta { margin:5px 0 0; font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
+  .facts { display:grid; grid-template-columns:1fr 1fr; gap:11px 14px; margin:14px 0 0; }
+  .list.rows .facts { margin:0; }
+  @media (min-width:900px) { .list.rows .facts { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+  .fact { min-width:0; }
+  .fk { display:block; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .fv { display:block; margin-top:2px; font-size:14px; line-height:1.5; overflow-wrap:anywhere; }
+
+  .rside { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+           margin-top:14px; padding-top:13px; border-top:1px solid var(--soft); }
+  .list.rows .rside { margin-top:0; padding-top:0; border-top:0; justify-content:flex-end; }
+  .rstatus { margin:0; font-size:12px; line-height:1.55; color:var(--muted); }
+  .rstatus.bad { color:var(--bad); }
+  .fields { display:grid; gap:14px; }
+  .fields label { display:block; margin:0 0 5px; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .empty { grid-column:1/-1; text-align:center; color:var(--muted); font-size:15px; padding:46px 0; }
+
+  /* pager */
+  .pager { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center; margin:26px 0 0; }
+  .pgs { display:flex; gap:5px; align-items:center; }
+  .pg { min-width:38px; height:38px; padding:0 10px; font-size:14px; color:var(--ink);
+        background:var(--card); border:1px solid var(--line); border-radius:10px; }
+  .pg:hover:not([disabled]) { border-color:#cdbfa6; }
+  .pg.on { color:#fff; background:var(--accent); border-color:var(--accent); }
+  .pg[disabled] { opacity:.4; cursor:default; }
+  .dots { padding:0 4px; color:var(--muted); font-size:14px; }
+  .pcount { margin:12px 0 0; text-align:center; font-size:12px; color:var(--muted); }
+
+  /* password popup */
+  .gate { position:fixed; inset:0; z-index:2000; display:flex; align-items:center; justify-content:center; padding:20px;
+          background:rgba(44,42,40,.5); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+  .gate-box { position:relative; width:100%; max-width:360px; background:var(--card); border:1px solid var(--line);
+              border-radius:18px; padding:28px 24px 24px; box-shadow:0 24px 60px rgba(44,42,40,.28); }
+  .gate-mark { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin:0 0 14px;
+               color:var(--accent); background:var(--soft); border-radius:50%; }
+  .gate-title { margin:0 0 5px; font-size:22px; font-weight:normal; }
+  .gate-hint { margin:0 0 20px; font-size:13px; line-height:1.65; color:var(--muted); }
+  .gate-btn { box-sizing:border-box; width:100%; margin:14px 0 0; padding:13px 14px; font:inherit; font-size:14px;
+              letter-spacing:.1em; text-transform:uppercase; color:var(--maroon); background:var(--paper);
+              border:1px solid var(--line); border-radius:10px; }
+  .gate-btn:hover { background:var(--soft); }
+  .gate-err { min-height:20px; margin:12px 0 0; font-size:13px; line-height:1.5; color:var(--bad); }
+  .gate-alt { margin:18px 0 0; text-align:center; font-size:12px; color:var(--muted); }
+  .gate-alt a { color:var(--muted); }
+
+  /* modify popup */
+  .modal-box { max-width:480px; max-height:calc(100vh - 40px); overflow:auto; }
+  .modal-x { position:absolute; top:12px; right:12px; width:34px; height:34px; padding:0; font-size:20px; line-height:1;
+             color:var(--muted); background:transparent; border:0; border-radius:9px; }
+  .modal-x:hover { color:var(--ink); background:var(--soft); }
+  .mtitle { margin:0 0 4px; font-size:22px; font-weight:normal; overflow-wrap:anywhere; }
+  .msub { margin:0 0 16px; font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
+  .mfacts { margin:0 0 18px; padding:14px 0; border-top:1px solid var(--soft); border-bottom:1px solid var(--soft); }
+  .mbtns { display:flex; flex-wrap:wrap; gap:9px; justify-content:flex-end; margin:18px 0 0; }
+  .rpreview { margin:0 0 4px; padding:16px 18px; background:#fffdf9; border:1px solid var(--line); border-radius:12px;
+              font-size:14px; line-height:1.75; white-space:pre-line; overflow-wrap:anywhere; }
+  .toast { position:fixed; left:50%; bottom:26px; z-index:2500; max-width:calc(100vw - 32px);
+           padding:12px 20px; font-size:14px; line-height:1.45; color:#fff; background:var(--ink);
+           border-radius:999px; box-shadow:0 12px 30px rgba(44,42,40,.3); text-align:center;
+           opacity:0; transform:translate(-50%,12px); transition:opacity .25s, transform .25s; pointer-events:none; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .toast.bad { background:var(--bad); }
+  @media (max-width:420px) { .wrap { padding:20px 12px 64px; } h1 { font-size:23px; } .gate-box { padding:24px 18px 20px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="panel" class="hidden">
+    <div class="top">
+      <div>
+        <p class="kicker">Kenneth &amp; Catherine &middot; 12 December 2026</p>
+        <h1>Guest replies</h1>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="tools">
+      <div class="group">
+        <div class="search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+          <input type="text" id="filter" placeholder="Search a name or email" aria-label="Search a name or email">
+        </div>
+        <div class="seg" id="filters" role="group" aria-label="Filter replies">
+          <button type="button" data-f="all" class="on">All</button>
+          <button type="button" data-f="waiting">Not confirmed</button>
+          <button type="button" data-f="seated">Confirmed</button>
+        </div>
+      </div>
+      <div class="group">
+        <div class="seg" id="views" role="group" aria-label="Change layout">
+          <button type="button" data-v="grid" aria-label="Grid view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Grid
+          </button>
+          <button type="button" data-v="rows" aria-label="List view">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg>List
+          </button>
+        </div>
+        <button type="button" class="btn sm" id="remindOpen">Day-before reminder</button>
+        <button type="button" class="btn ghost sm" id="refresh">Refresh</button>
+        <a class="btn ghost sm" href="wedding.html">Back to site</a>
+      </div>
+    </div>
+    <p class="stamp" id="stamp"></p>
+
+    <div class="list grid" id="list" style="margin-top:16px"></div>
+    <nav class="pager hidden" id="pager" aria-label="Pages"></nav>
+    <p class="pcount hidden" id="pcount"></p>
+    <p class="gate-err" id="panelError" style="text-align:center"></p>
+  </div>
+</div>
+
+<div id="gate" class="gate hidden" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <div class="gate-box">
+    <div class="gate-mark">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+    </div>
+    <p class="kicker">Kenneth &amp; Catherine</p>
+    <h2 class="gate-title" id="gate-title">For the couple only</h2>
+    <p class="gate-hint">Enter the password to open the guest list and seat replies.</p>
+    <label for="key" style="display:block;margin:0 0 5px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Password</label>
+    <input type="password" id="key" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="Admin password">
+    <button type="button" class="gate-btn" id="open">Open admin panel</button>
+    <p class="gate-err" id="gateError" role="status" aria-live="polite"></p>
+    <p class="gate-alt"><a href="wedding.html">Not the couple? Back to the site</a></p>
+  </div>
+</div>
+
+<div id="editModal" class="gate hidden" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="gate-box modal-box">
+    <button id="m-x" class="modal-x" type="button" aria-label="Close">&times;</button>
+    <p class="kicker">Seat reply</p>
+    <h2 class="mtitle" id="m-title">Guest</h2>
+    <p class="msub" id="m-sub"></p>
+    <div class="facts mfacts" id="m-facts"></div>
+    <div class="fields">
+      <div id="m-seat-row">
+        <label for="m-seat">Seat number</label>
+        <input type="text" id="m-seat" placeholder="e.g. Table 12" maxlength="40">
+      </div>
+      <div>
+        <label for="m-note">Note to send them</label>
+        <textarea id="m-note" placeholder="Optional &mdash; appears in their confirmation email." maxlength="600"></textarea>
+      </div>
+    </div>
+    <p class="gate-err" id="m-err" role="status" aria-live="polite"></p>
+    <div class="mbtns">
+      <button type="button" class="btn plain sm" id="m-cancel">Cancel</button>
+      <button type="button" class="btn sm" id="m-save">Confirm &amp; email guest</button>
+    </div>
+  </div>
+</div>
+<div id="remindModal" class="gate hidden" role="dialog" aria-modal="true" aria-labelledby="r-title">
+  <div class="gate-box modal-box">
+    <button id="r-x" class="modal-x" type="button" aria-label="Close">&times;</button>
+    <p class="kicker">11 December reminder</p>
+    <h2 class="mtitle" id="r-title">Day-before reminder</h2>
+    <p class="msub" id="r-sub">Loading the guest list…</p>
+    <div class="rpreview" id="r-preview">🤍 TOMORROW IS THE DAY! 💍
+Just a little reminder that our wedding is happening tomorrow!
+📅 December 12, 2026
+⏰ 1 PM
+📍 Edgies's Restaurant and Events
+
+Kindly arrive on time and remember our dress code.
+
+Please note that parking is limited at the venue.
+
+We're excited to celebrate this special day with you! See you tomorrow!</div>
+    <p class="gate-err" id="r-status" role="status" aria-live="polite"></p>
+    <div class="mbtns">
+      <button type="button" class="btn plain sm" id="r-cancel">Cancel</button>
+      <button type="button" class="btn sm" id="r-send">Send the reminder</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var ENDPOINT = "https://mellow-marten-19.convex.site/admin";
+  var PER_PAGE = { grid: 6, rows: 10 };
+
+  var gate = document.getElementById("gate");
+  var panel = document.getElementById("panel");
+  var keyInput = document.getElementById("key");
+  var gateError = document.getElementById("gateError");
+  var panelError = document.getElementById("panelError");
+  var listEl = document.getElementById("list");
+  var statsEl = document.getElementById("stats");
+  var stampEl = document.getElementById("stamp");
+  var filterEl = document.getElementById("filter");
+  var pagerEl = document.getElementById("pager");
+  var pcountEl = document.getElementById("pcount");
+  var modal = document.getElementById("editModal");
+  var mTitle = document.getElementById("m-title");
+  var mSub = document.getElementById("m-sub");
+  var mFacts = document.getElementById("m-facts");
+  var mSeat = document.getElementById("m-seat");
+  var mNote = document.getElementById("m-note");
+  var mErr = document.getElementById("m-err");
+  var mSave = document.getElementById("m-save");
+  var mSeatRow = document.getElementById("m-seat-row");
+  var remind = document.getElementById("remindModal");
+  var remindOpenBtn = document.getElementById("remindOpen");
+  var remindSend = document.getElementById("r-send");
+  var remindSub = document.getElementById("r-sub");
+  var remindStatus = document.getElementById("r-status");
+  var toastEl = document.getElementById("toast");
+  var toastTimer = 0;
+  var editing = null;
+
+  var key = "";
+  var state = { rows: [], page: 1, view: "grid", filter: "all", term: "" };
+
+  // The Admin popup verifies the password and hands it over for exactly this one
+  // page load: it is consumed here, so returning from the site always asks again.
+  // The panel keeps it in memory only, which is what Refresh and Confirm use.
+  try {
+    key = sessionStorage.getItem("kcAdminKey") || "";
+    sessionStorage.removeItem("kcAdminKey");
+  } catch (e) { key = ""; }
+  try {
+    var savedView = localStorage.getItem("kcAdminView");
+    if (savedView === "grid" || savedView === "rows") state.view = savedView;
+  } catch (e) {}
+
+  function show(el, message) { el.textContent = message || ""; el.classList.toggle("hidden", !message); }
+
+  function api(body) {
+    return fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-kc-key": key },
+      body: JSON.stringify(body),
+    }).then(function (res) {
+      return res.json().catch(function () { return null; }).then(function (data) {
+        if (res.status === 401) { var e = new Error("wrong-key"); e.wrongKey = true; throw e; }
+        if (!res.ok || !data || data.ok !== true) throw new Error((data && data.error) || "Request failed (" + res.status + ")");
+        return data;
+      });
+    });
+  }
+
+  function el(tag, className, textValue) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (textValue !== undefined) node.textContent = textValue;
+    return node;
+  }
+
+  function when(at) {
+    if (!at) return "";
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila",
+      }).format(new Date(at));
+    } catch (e) { return new Date(at).toISOString(); }
+  }
+
+  function fact(label, value) {
+    var box = el("div", "fact");
+    box.appendChild(el("span", "fk", label));
+    box.appendChild(el("span", "fv", value));
+    return box;
+  }
+
+  function reply(row) {
+    return row.attend === "yes" ? "Accepts with pleasure" : "Regretfully declines";
+  }
+
+  function seatsText(row) {
+    if (row.attend !== "yes") return "—";
+    return String(row.headcount || row.seats || 1);
+  }
+
+  function guestsText(row) {
+    if (row.attend !== "yes") return "—";
+    return row.guests || "Coming alone";
+  }
+
+  function reminderText(row) {
+    if (row.attend !== "yes") return "—";
+    return row.remindedAt ? when(row.remindedAt) + " PHT" : "Not sent";
+  }
+
+  /** Exactly the four things the RSVP form asks, plus what we did with them. */
+  function factCells(row) {
+    return [
+      ["Reply", reply(row)],
+      ["How many", seatsText(row)],
+      ["With whom", guestsText(row)],
+      ["Day-before reminder", reminderText(row)],
+    ];
+  }
+
+  function factsBox(row, extraClass) {
+    var box = el("div", "facts" + (extraClass ? " " + extraClass : ""));
+    factCells(row).forEach(function (f) { box.appendChild(fact(f[0], f[1])); });
+    return box;
+  }
+
+  function entry(row) {
+    var box = el("article", "reply" + (row.confirmedAt ? " is-seated" : "") + (row.outdated ? " is-outdated" : ""));
+    box.setAttribute("data-id", row.id);
+
+    var main = el("div", "rmain");
+    var head = el("div", "rhead");
+    head.appendChild(el("h3", "rname", row.name));
+    head.appendChild(el("span",
+      row.outdated ? "chip old" : "chip " + (row.confirmedAt ? "done" : "wait"),
+      row.outdated
+        ? "Replaced by a newer reply"
+        : row.confirmedAt
+        ? (row.attend === "yes" && row.seat ? "Seat " + row.seat : "Confirmed")
+        : row.attend === "yes" ? "No seat yet" : "Not confirmed"));
+    main.appendChild(head);
+
+    var meta = el("p", "rmeta");
+    var mail = el("a", null, row.email);
+    mail.href = "mailto:" + row.email;
+    meta.appendChild(mail);
+    meta.appendChild(document.createTextNode(" · replied " + when(row.at) + " PHT"));
+    main.appendChild(meta);
+
+    if (state.view === "grid") main.appendChild(factsBox(row));
+    box.appendChild(main);
+
+    var side = el("div", "rside");
+    if (state.view === "rows") box.appendChild(factsBox(row));
+    var status = el("p", "rstatus" + (row.confirmedAt && !row.confirmEmailOk ? " bad" : ""));
+    status.textContent = row.confirmedAt
+      ? "Confirmed " + when(row.confirmedAt) + " PHT" + (row.confirmEmailOk ? "" : " — the email did not go out")
+      : "";
+    side.appendChild(status);
+    var editBtn = el("button", "btn ghost sm", row.confirmedAt
+      ? "Modify"
+      : row.attend === "yes" ? "Assign a seat" : "Confirm this reply");
+    editBtn.type = "button";
+    side.appendChild(editBtn);
+    box.appendChild(side);
+
+    editBtn.addEventListener("click", function () { openModal(row); });
+    return box;
+  }
+
+  function openModal(row) {
+    editing = row;
+    mTitle.textContent = row.name;
+    mSub.textContent = row.email + " · replied " + when(row.at) + " PHT";
+    mFacts.textContent = "";
+    factCells(row).forEach(function (f) { mFacts.appendChild(fact(f[0], f[1])); });
+    mSeatRow.classList.toggle("hidden", row.attend !== "yes");
+    mSeat.value = row.seat || "";
+    mNote.value = row.note || "";
+    mSave.textContent = row.confirmedAt ? "Save & email again" : "Confirm & email guest";
+    show(mErr, row.confirmedAt && !row.confirmEmailOk
+      ? "The last email did not go out. Saving again will retry it."
+      : "");
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    (row.attend === "yes" ? mSeat : mNote).focus();
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    document.body.style.overflow = "";
+    editing = null;
+  }
+
+  function toast(message, bad) {
+    toastEl.textContent = message;
+    toastEl.className = "toast show" + (bad ? " bad" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.className = "toast"; }, 5000);
+  }
+
+  function saveSeat() {
+    var row = editing;
+    if (!row) return;
+    var value = mSeat.value.trim();
+    if (row.attend === "yes" && !value) { show(mErr, "Please give a seat number first."); mSeat.focus(); return; }
+    mSave.disabled = true;
+    show(mErr, "");
+    api({ action: "confirm", id: row.id, seat: value, note: mNote.value.trim() })
+      .then(function (data) {
+        mSave.disabled = false;
+        row.seat = data.seat;
+        row.note = data.note;
+        row.confirmedAt = data.confirmedAt;
+        row.confirmEmailOk = data.emailed;
+        closeModal();
+        render();
+        toast(data.emailed
+          ? "Saved — " + row.email + " has been emailed."
+          : "Saved, but the email failed. Open Modify to try again.", !data.emailed);
+      })
+      .catch(function (err) {
+        mSave.disabled = false;
+        show(mErr, err.wrongKey ? "Your session expired. Sign in again." : err.message);
+        if (err.wrongKey) { closeModal(); lock(); }
+      });
+  }
+
+  /** Guests who accepted and have not yet had the Dec 11 note. */
+  function remindQueue() {
+    return state.rows.filter(function (r) { return r.attend === "yes" && !r.remindedAt && !r.outdated; });
+  }
+
+  function remindCount() {
+    var queued = remindQueue().length;
+    var total = state.rows.filter(function (r) { return r.attend === "yes" && !r.outdated; }).length;
+    remindOpenBtn.textContent = queued
+      ? "Day-before reminder (" + queued + ")"
+      : total ? "Reminder sent to all" : "Day-before reminder";
+    remindOpenBtn.disabled = !queued;
+  }
+
+  function openRemind() {
+    var queued = remindQueue().length;
+    remindSub.textContent = queued
+      ? "Goes to " + queued + (queued === 1 ? " guest" : " guests") + " who accepted and " +
+        (queued === 1 ? "has" : "have") + " not been reminded yet. Each guest only gets it once."
+      : "Every guest who accepted has already received this.";
+    show(remindStatus, "");
+    remindSend.disabled = !queued;
+    remind.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    remindSend.focus();
+  }
+
+  function closeRemind() {
+    remind.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  function sendRemind() {
+    remindSend.disabled = true;
+    var sent = 0, failed = 0;
+    show(remindStatus, "Sending…");
+    var step = function () {
+      return api({ action: "reminder" }).then(function (data) {
+        sent += data.sent;
+        failed += data.failed;
+        remindSub.textContent = "Sent " + sent + (failed ? " · " + failed + " could not be reached" : "") +
+          (data.remaining ? " · " + data.remaining + " still in line" : "");
+        if (data.remaining > 0 && data.sent > 0) return step();
+        return null;
+      });
+    };
+    step()
+      .then(function () {
+        if (failed) toast("Reminder went to " + sent + " guests; " + failed + " failed. Try again in a moment.", true);
+        else toast(sent ? "Reminder sent to " + sent + (sent === 1 ? " guest" : " guests") + "." : "Everyone had already been reminded.");
+        return load();
+      })
+      .catch(function (err) {
+        show(remindStatus, err.wrongKey ? "Your session expired. Sign in again." :
+          "Stopped after " + sent + " sent: " + err.message);
+        if (err.wrongKey) { closeRemind(); lock(); }
+        else render();
+      });
+  }
+
+  function stats() {
+    var coming = 0, regrets = 0, toConfirm = 0, heads = 0, current = 0;
+    state.rows.forEach(function (r) {
+      if (r.outdated) return;
+      current++;
+      if (r.attend === "yes") {
+        coming++;
+        heads += r.headcount || r.seats || 1;
+        if (!r.confirmedAt) toConfirm++;
+      } else regrets++;
+    });
+    statsEl.textContent = "";
+    [["Replies", current], ["Accepts", coming], ["Regrets", regrets],
+     ["To confirm", toConfirm], ["Heads", heads]]
+      .forEach(function (entryPair) {
+        var box = el("div", "stat");
+        box.appendChild(el("b", null, String(entryPair[1])));
+        box.appendChild(document.createTextNode(entryPair[0]));
+        statsEl.appendChild(box);
+      });
+  }
+
+  function visible() {
+    var term = state.term.toLowerCase();
+    return state.rows.filter(function (r) {
+      if (r.outdated && state.filter !== "all") return false;
+      if (state.filter === "seated" && !r.confirmedAt) return false;
+      if (state.filter === "waiting" && r.confirmedAt) return false;
+      if (term && (r.name + " " + r.email).toLowerCase().indexOf(term) === -1) return false;
+      return true;
+    });
+  }
+
+  function pageList(pages, current) {
+    if (pages <= 7) {
+      var all = [];
+      for (var i = 1; i <= pages; i++) all.push(i);
+      return all;
+    }
+    var out = [1];
+    if (current > 3) out.push("…");
+    for (var j = Math.max(2, current - 1); j <= Math.min(pages - 1, current + 1); j++) out.push(j);
+    if (current < pages - 2) out.push("…");
+    out.push(pages);
+    return out;
+  }
+
+  function pager(items, pages) {
+    pagerEl.textContent = "";
+    var size = PER_PAGE[state.view];
+    var from = items.length ? (state.page - 1) * size + 1 : 0;
+    var to = Math.min(items.length, state.page * size);
+    pcountEl.textContent = pages > 1
+      ? "Showing " + from + "–" + to + " of " + items.length + (items.length === 1 ? " reply" : " replies")
+      : "";
+    pcountEl.classList.toggle("hidden", pages <= 1);
+    if (pages <= 1) { pagerEl.classList.add("hidden"); return; }
+    pagerEl.classList.remove("hidden");
+
+    var prev = el("button", "pg", "‹");
+    prev.type = "button";
+    prev.setAttribute("aria-label", "Previous page");
+    prev.disabled = state.page === 1;
+    prev.addEventListener("click", function () { go(state.page - 1); });
+    pagerEl.appendChild(prev);
+
+    var wrap = el("div", "pgs");
+    pageList(pages, state.page).forEach(function (p) {
+      if (p === "…") { wrap.appendChild(el("span", "dots", "…")); return; }
+      var b = el("button", "pg" + (p === state.page ? " on" : ""), String(p));
+      b.type = "button";
+      if (p === state.page) b.setAttribute("aria-current", "page");
+      b.addEventListener("click", function () { go(p); });
+      wrap.appendChild(b);
+    });
+    pagerEl.appendChild(wrap);
+
+    var next = el("button", "pg", "›");
+    next.type = "button";
+    next.setAttribute("aria-label", "Next page");
+    next.disabled = state.page === pages;
+    next.addEventListener("click", function () { go(state.page + 1); });
+    pagerEl.appendChild(next);
+  }
+
+  function go(page) {
+    state.page = page;
+    render();
+    var top = listEl.getBoundingClientRect().top + window.pageYOffset - 12;
+    window.scrollTo({ top: top < 0 ? 0 : top, behavior: "smooth" });
+  }
+
+  function render() {
+    var size = PER_PAGE[state.view];
+    var items = visible();
+    var pages = Math.max(1, Math.ceil(items.length / size));
+    if (state.page > pages) state.page = pages;
+    if (state.page < 1) state.page = 1;
+
+    listEl.className = "list " + state.view;
+    listEl.textContent = "";
+    var slice = items.slice((state.page - 1) * size, state.page * size);
+    if (!slice.length) {
+      listEl.appendChild(el("p", "empty", state.rows.length
+        ? "No reply matches this filter."
+        : "No one has replied yet."));
+    }
+    slice.forEach(function (row) { listEl.appendChild(entry(row)); });
+    stats();
+    remindCount();
+    pager(items, pages);
+  }
+
+  function setView(view) {
+    state.view = view;
+    state.page = 1;
+    try { localStorage.setItem("kcAdminView", view); } catch (e) {}
+    Array.prototype.forEach.call(document.querySelectorAll("#views button"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-v") === view);
+    });
+    render();
+  }
+
+  function setFilter(filter) {
+    state.filter = filter;
+    state.page = 1;
+    Array.prototype.forEach.call(document.querySelectorAll("#filters button"), function (b) {
+      b.classList.toggle("on", b.getAttribute("data-f") === filter);
+    });
+    render();
+  }
+
+  function paint(data) {
+    if (!modal.classList.contains("hidden")) closeModal();
+    if (!remind.classList.contains("hidden")) closeRemind();
+    state.rows = data.rows.slice().sort(function (a, b) { return b.at - a.at; });
+    stampEl.textContent = "Loaded " + new Intl.DateTimeFormat("en-GB", {
+      dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila",
+    }).format(new Date()) + " PHT";
+    show(panelError, "");
+    render();
+  }
+
+  function unlock() {
+    gate.classList.add("hidden");
+    panel.classList.remove("hidden");
+  }
+
+  function lock() {
+    panel.classList.add("hidden");
+    gate.classList.remove("hidden");
+    key = "";
+    show(gateError, "That password did not work. Please try again.");
+    keyInput.value = "";
+    keyInput.focus();
+  }
+
+  function load() {
+    return api({ action: "list" }).then(function (data) {
+      unlock();
+      show(gateError, "");
+      paint(data);
+    }).catch(function (err) {
+      if (err.wrongKey) { lock(); return; }
+      unlock();
+      show(panelError, "Could not load the list: " + err.message);
+    });
+  }
+
+  function tryOpen() {
+    key = keyInput.value.trim();
+    if (!key) { show(gateError, "Please enter the password."); keyInput.focus(); return; }
+    show(gateError, "Checking…");
+    load();
+  }
+
+  document.getElementById("open").addEventListener("click", tryOpen);
+  keyInput.addEventListener("keydown", function (e) { if (e.key === "Enter") tryOpen(); });
+  document.getElementById("refresh").addEventListener("click", load);
+  mSave.addEventListener("click", saveSeat);
+  document.getElementById("m-cancel").addEventListener("click", closeModal);
+  document.getElementById("m-x").addEventListener("click", closeModal);
+  modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  mNote.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) saveSeat(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (!modal.classList.contains("hidden")) {
+      var id = editing && editing.id;
+      closeModal();
+      var back = id ? listEl.querySelector('[data-id="' + id + '"] .btn') : null;
+      if (back) back.focus();
+      return;
+    }
+    if (!remind.classList.contains("hidden")) { closeRemind(); remindOpenBtn.focus(); }
+  });
+  remindOpenBtn.addEventListener("click", openRemind);
+  remindSend.addEventListener("click", sendRemind);
+  document.getElementById("r-cancel").addEventListener("click", closeRemind);
+  document.getElementById("r-x").addEventListener("click", closeRemind);
+  remind.addEventListener("click", function (e) { if (e.target === remind) closeRemind(); });
+  filterEl.addEventListener("input", function () {
+    state.term = filterEl.value.trim();
+    state.page = 1;
+    render();
+  });
+  document.getElementById("views").addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("button[data-v]") : null;
+    if (b) setView(b.getAttribute("data-v"));
+  });
+  document.getElementById("filters").addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest("button[data-f]") : null;
+    if (b) setFilter(b.getAttribute("data-f"));
+  });
+
+  setView(state.view);
+  if (key) load();
+  else { gate.classList.remove("hidden"); keyInput.focus(); }
+})();
+</script>
+</body>
+</html>

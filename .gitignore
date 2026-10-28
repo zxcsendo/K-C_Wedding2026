@@ -1,0 +1,14 @@
+# Public mirror. The Brevo key, the Convex deployment name and the guest-list
+# backup live only in the private repository, so they stay untracked here and
+# must never be added back.
+.env
+.env.local
+rsvp-backup-*.json
+
+# Build noise
+node_modules/
+*.log
+.DS_Store
+
+# Hosting staging folder produced by scripts/prepare-vercel.mjs
+dist/
