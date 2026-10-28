@@ -1,5 +1,6 @@
-/* Adds the couple's "Admin" entry to the site menu and gates it behind a
-   password that is checked by the backend, never by this page. */
+/* Adds the couple's "Admin" entry to the footer, gated behind a password that
+   is checked by the backend, never by this page. Deliberately out of the menu:
+   guests should not see it while navigating. */
 (function () {
   var ENDPOINT = "https://mellow-marten-19.convex.site/admin";
   var TARGET = "admin.html";
@@ -147,20 +148,24 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
   }
 
-  /** Clone a real menu item so the entry is styled exactly like its neighbours. */
-  function addToMenu(nav) {
-    var items = nav.querySelectorAll('[data-part="menu-item-link"]');
-    if (!items.length) return false;
-    var last = items[items.length - 1];
-    var chip = last.cloneNode(true);
+  /** Clone the footer's last legal line so the entry inherits its exact styling
+   *  and sits under Privacy Policy and Accessibility Statement. */
+  function addToFooter(foot) {
+    var lines = foot.querySelectorAll('a[href^="#kc-"]');
+    var last = lines.length ? lines[lines.length - 1] : null;
+    if (!last) return false;
+    var line = last.closest("p") || last.parentNode;
+    var holder = line.parentNode;
+    if (!holder) return false;
+    var clone = line.cloneNode(true);
+    var chip = clone.querySelector("a") || clone;
     chip.href = TARGET;
     chip.target = "_self";
+    chip.removeAttribute("data-kc-doc");
+    chip.removeAttribute("aria-haspopup");
     chip.setAttribute("data-kc-admin", "");
-    chip.removeAttribute("aria-current");
-    var label = chip.querySelector('[data-part="label"]');
-    if (!label) return false;
-    label.textContent = "Admin";
-    last.parentNode.insertBefore(chip, last.nextSibling);
+    chip.textContent = "Admin";
+    holder.insertBefore(clone, line.nextSibling);
     chip.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -182,8 +187,8 @@
   var tries = 0;
   function place() {
     if (document.querySelector("[data-kc-admin]")) return;
-    var nav = document.querySelector('[data-part="navbar"]');
-    if (nav && addToMenu(nav)) return;
+    var foot = document.querySelector("footer");
+    if (foot && addToFooter(foot)) return;
     if (++tries < 12) setTimeout(place, 250);
   }
   place();
